@@ -1,6 +1,12 @@
+'use client'
+
+import { LogOut } from "lucide-react"
 import Link from "next/link"
+import { Button } from "../ui/button"
+import { useAuthStore } from "@/hooks/stores";
 
 export default function Navbar() {
+  const { logout } = useAuthStore();
   return (
     <nav className="border-b border-border bg-white/30 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="container mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
@@ -27,6 +33,15 @@ export default function Navbar() {
           >
             Farcaster
           </Link>
+          <Button
+          size="icon"
+          onClick={logout}
+          aria-label="Log out"
+          title="Log out"
+          className="bg-red-500 text-white"
+        >
+          <LogOut className="h-5 w-5" />
+        </Button>
         </div>
       </div>
     </nav>
