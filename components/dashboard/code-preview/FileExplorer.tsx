@@ -101,6 +101,8 @@ export default function FileExplorer({ onSelect }: FileExplorerProps) {
     }
   }
 
+  console.log(activeProjectId, fileTree, tree);
+
   if (!fileTree) {
     return (
       <div className="bg-white border-r w-64 h-full text-gray-800 p-2 flex items-center justify-center">
