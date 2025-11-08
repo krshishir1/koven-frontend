@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
-import useAppStore from "@/hooks/use-app-store";
+import { useProjectStore } from "@/hooks/stores";
 
 interface Message {
   id: string;
@@ -22,8 +22,8 @@ export default function ChatPanel({
   initialMessage,
   projectId,
 }: ChatPanelProps) {
-  const chats = useAppStore((s) => s.chatsByProjectId[projectId] ?? []);
-  const addChatMessage = useAppStore((s) => s.addChatMessage);
+  const chats = useProjectStore((s) => s.chatsByProjectId[projectId] ?? []);
+  const addChatMessage = useProjectStore((s) => s.addChatMessage);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasRunRef = useRef(false);

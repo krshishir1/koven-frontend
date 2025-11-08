@@ -1,6 +1,6 @@
 "use client";
 
-import useAppStore from "@/hooks/use-app-store";
+import { useProjectStore } from "@/hooks/stores";
 
 interface MobileSwitchProps {
   projectId: string;
@@ -9,7 +9,7 @@ interface MobileSwitchProps {
 }
 
 export default function MobileSwitch({ projectId, view, onChange }: MobileSwitchProps) {
-  const project = useAppStore((s) => s.projects.find((p) => p.id === projectId));
+  const project = useProjectStore((s) => s.projects.find((p) => p.id === projectId));
 
   return (
     <div className="md:hidden border-b border-border bg-white sticky z-40">

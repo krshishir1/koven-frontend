@@ -6,7 +6,7 @@ import AccountMenu from "./AccountMenu";
 import PaymentMenu from "./PaymentMenu";
 import Link from "next/link";
 
-import useAppStore from "@/hooks/use-app-store";
+import { useProjectStore } from "@/hooks/stores";
 
 interface AppNavbarProps {
   onToggleSidebar: () => void;
@@ -14,7 +14,8 @@ interface AppNavbarProps {
 
 export default function AppNavbar({ onToggleSidebar }: AppNavbarProps) {
 
-    const {projects, activeProjectId} = useAppStore()
+    const projects = useProjectStore((s) => s.projects);
+    const activeProjectId = useProjectStore((s) => s.activeProjectId);
     const activeProject = projects.find((el) => el.id === activeProjectId);
 
   return (

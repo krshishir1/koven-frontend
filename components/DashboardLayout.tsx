@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import ChatPanel from "@/components/dashboard/ChatPanel";
+import { useState, useEffect } from "react";
+import ChatPanel from "@/components/dashboard/side-panels/chatbox/ChatPanel";
 import PreviewPanel from "@/components/dashboard/PreviewPanel";
 import ProjectHeader from "@/components/dashboard/ProjectHeader";
-import useAppStore from "@/hooks/use-app-store";
+import { useProjectStore } from "@/hooks/stores";
 import MobileSwitch from "@/components/dashboard/MobileSwitch";
 
 import {
@@ -14,42 +13,23 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 
-export default function DashboardLayout({
-  searchParams: params,
-}: {
-  searchParams: Promise<{ idea?: string }>;
-}) {
-  const ideaParam = params?.idea
-//   const ideaParam = searchParams.get("idea");
-  const router = useRouter();
-  const pathname = usePathname();
-  const [projectId, setProjectId] = useState("");
-  const [initialMessage, setInitialMessage] = useState<string | null>(null);
-  const projects = useAppStore((s) => s.projects);
-  const setActiveProject = useAppStore((s) => s.setActiveProject);
+export default function DashboardLayout() {
+  const projects = useProjectStore((s) => s.projects);
+  const activeProjectId = useProjectStore((s) => s.activeProjectId);
+  const setActiveProject = useProjectStore((s) => s.setActiveProject);
   const [mobileView, setMobileView] = useState<"chat" | "preview">("chat");
 
-  // On mount or when projects change, default to first project if none selected
+  // Get the active project
+  const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0];
+  const projectId = activeProject?.id || "";
+  const initialMessage = activeProject?.idea || null;
+
+  // Set active project to first project if none is selected
   useEffect(() => {
-    if (!projectId && projects.length > 0) {
-      setProjectId(projects[0].id);
+    if (!activeProjectId && projects.length > 0) {
       setActiveProject(projects[0].id);
     }
-  }, [projects, projectId, setActiveProject]);
-
-  // If idea param exists, treat it as a project id if it matches; else as initial message
-  useEffect(() => {
-    let match;
-    if (!ideaParam) match = projects[0];
-    else match = projects.find((p) => p.id === ideaParam);
-    if (match) {
-      setProjectId(match.id);
-      setActiveProject(match.id);
-      setInitialMessage(match.idea);
-    } else {
-      router.replace("/");
-    }
-  }, [ideaParam, projects, setActiveProject, router, pathname]);
+  }, [activeProjectId, projects, setActiveProject]);
 
   return (
     <div className="flex flex-col h-full overflow-hidden">

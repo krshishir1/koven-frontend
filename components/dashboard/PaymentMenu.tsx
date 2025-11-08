@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import TopUpModal from "./modals/TopupModal";
 import PublishModal from "./modals/PublishModal";
-import useAppStore from "@/hooks/use-app-store";
+// import { useProjectStore } from "@/hooks/stores"; // Not currently used in this component
 
 type PublishStatus = "draft" | "published" | "error" | "ready";
 

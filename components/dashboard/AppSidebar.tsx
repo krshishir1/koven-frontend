@@ -6,8 +6,19 @@ import { useState } from "react";
 import { Plus, Settings, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProjectAvatar } from "@/components/ui/avatar-gen";
-import useAppStore from "@/hooks/use-app-store";
+import { useProjectStore } from "@/hooks/stores";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import {
+  Files,
+  Search,
+  BookCheck,
+  Anchor,
+  MessageCircleMore,
+  Bug,
+  CheckCheck,
+  GitBranch,
+} from "lucide-react";
 
 // Data is loaded from zustand store
 
@@ -22,9 +33,9 @@ export default function AppSidebar({
 }: AppSidebarProps) {
   const [focusedIndex, setFocusedIndex] = useState(0);
 
-  const projects = useAppStore((s) => s.projects);
-  const activeProjectId = useAppStore((s) => s.activeProjectId);
-  const setActiveProjectGlobal = useAppStore((s) => s.setActiveProject);
+  const projects = useProjectStore((s) => s.projects);
+  const activeProjectId = useProjectStore((s) => s.activeProjectId);
+  const setActiveProjectGlobal = useProjectStore((s) => s.setActiveProject);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -85,7 +96,7 @@ export default function AppSidebar({
         role="listbox"
         aria-label="Projects list"
       >
-        {projects.map((project, index) => {
+        {/* {projects.map((project, index) => {
           const isActive = activeId === project.id;
           const isFocused = focusedIndex === index;
           return (
@@ -106,7 +117,7 @@ export default function AppSidebar({
                 sidebarOpen ? "w-10" : "w-full"
               } rounded-lg flex items-center gap-3 px-2 transition-colors outline-none ${
                 isActive
-                  ? `${!sidebarOpen ? 'bg-secondary' : 'bg-muted'} text-white`
+                  ? `${!sidebarOpen ? "bg-secondary" : "bg-muted"} text-white`
                   : isFocused
                   ? "bg-muted/60 text-foreground"
                   : "text-muted-foreground hover:bg-muted"
@@ -122,7 +133,57 @@ export default function AppSidebar({
               )}
             </button>
           );
-        })}
+        })} */}
+
+        <>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`h-10 ${
+              sidebarOpen ? "w-10 justify-center" : "w-full justify-start px-2"
+            } hover:bg-secondary hover:text-white rounded-lg gap-3`}
+            title="Files"
+          >
+            <MessageCircleMore className="h-6 w-6" />
+            {!sidebarOpen && <span className="text-sm">Chat bot</span>}
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`h-10 ${
+              sidebarOpen ? "w-10 justify-center" : "w-full justify-start px-2"
+            } hover:bg-secondary hover:text-white rounded-lg gap-3`}
+            title="Search"
+          >
+            <Search className="h-6 w-6" />
+            {!sidebarOpen && <span className="text-sm">Search in Files</span>}
+          </Button>
+
+           <Button
+            variant="ghost"
+            size="icon"
+            className={`h-10 ${
+              sidebarOpen ? "w-10 justify-center" : "w-full justify-start px-2"
+            } hover:bg-secondary hover:text-white rounded-lg gap-3`}
+            title="Compile"
+          >
+            <BookCheck className="h-6 w-6" />
+            {!sidebarOpen && <span className="text-sm">Compiler</span>}
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`h-10 ${
+              sidebarOpen ? "w-10 justify-center" : "w-full justify-start px-2"
+            } hover:bg-secondary hover:text-white rounded-lg gap-3`}
+            title="Deploy"
+          >
+            <Anchor className="h-6 w-6" />
+            {!sidebarOpen && <span className="text-sm">Deploy Smart Contracts</span>}
+          </Button>
+        </>
       </div>
 
       {/* Settings button at bottom */}

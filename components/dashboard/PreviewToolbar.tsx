@@ -5,7 +5,7 @@ import { Code2, Camera, RotateCcw, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
-import useAppStore from "@/hooks/use-app-store";
+import { useProjectStore } from "@/hooks/stores";
 
 import PreviewUrlToolbar from "./PreviewUrlToolbar";
 import PublishModal from "./modals/PublishModal";
@@ -19,7 +19,7 @@ export default function PreviewToolbar({ onToggleCode, project }: PreviewToolbar
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
   const { toast } = useToast();
-  const setProjectStatus = useAppStore((s) => s.setProjectStatus);
+  const setProjectStatus = useProjectStore((s) => s.setProjectStatus);
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.ctrlKey || e.metaKey) {

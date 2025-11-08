@@ -2,19 +2,47 @@
 
 import PromptBar, { PromptBarHandle } from "./PromptBar"
 import IdeaChips from "./IdeaChips"
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import useAppStore from "@/hooks/use-app-store"
+import { useProjectStore, useAuthStore } from "@/hooks/stores"
 
 const IDEA_PILLS = ["Launchpad", "Betting Game", "Quiz"]
 
 export default function Hero() {
   const promptBarRef = useRef<PromptBarHandle | null>(null)
   const router = useRouter()
-  const addProject = useAppStore((s) => s.addProject)
-  const handleSubmit = (idea: string) => {
-    const project = addProject(idea)
-    router.push(`/app?idea=${encodeURIComponent(project.id)}`)
+  const addProject = useProjectStore((s) => s.addProject)
+  const setActiveProject = useProjectStore((s) => s.setActiveProject)
+  const { isAuthenticated, checkAuth, isLoading: authLoading } = useAuthStore()
+  const [isCreating, setIsCreating] = useState(false)
+
+  const handleSubmit = async (idea: string) => {
+    if (isCreating || authLoading) return
+
+    setIsCreating(true)
+    try {
+      // Check authentication - this will trigger Auth0 popup if not authenticated
+      const authenticated = await checkAuth()
+      
+      if (!authenticated) {
+        console.error("Authentication failed")
+        setIsCreating(false)
+        return
+      }
+
+      // Create project with "Untitled Project N" naming
+      const project = addProject(idea)
+      
+      // Set as active project
+      setActiveProject(project.id)
+      
+      // Navigate to app dashboard
+      router.push("/app")
+    } catch (error) {
+      console.error("Failed to create project:", error)
+    } finally {
+      setIsCreating(false)
+    }
   }
 
   const handlePillClick = (pill: string) => {
@@ -46,7 +74,11 @@ export default function Hero() {
           <div className="relative mb-8">
             <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/20 rounded-2xl blur-sm" />
             <div className="relative">
-              <PromptBar ref={promptBarRef} onSubmit={handleSubmit} />
+              <PromptBar 
+                ref={promptBarRef} 
+                onSubmit={handleSubmit}
+                disabled={isCreating || authLoading}
+              />
             </div>
           </div>
 

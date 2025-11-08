@@ -12,6 +12,7 @@ interface PromptBarProps {
   onSubmit: (idea: string) => void;
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export interface PromptBarHandle {
@@ -19,7 +20,7 @@ export interface PromptBarHandle {
 }
 
 const PromptBar = forwardRef<PromptBarHandle, PromptBarProps>(function PromptBar(
-  { onSubmit, placeholder = "Describe your miniapp", className = "" },
+  { onSubmit, placeholder = "Describe your miniapp", className = "", disabled = false },
   ref
 ) {
   const [idea, setIdea] = useState("");
@@ -42,6 +43,10 @@ const PromptBar = forwardRef<PromptBarHandle, PromptBarProps>(function PromptBar
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (disabled) {
+      return;
+    }
 
     if (!idea.trim()) {
       setError("Tell us your idea to get started.");
@@ -77,6 +82,7 @@ const PromptBar = forwardRef<PromptBarHandle, PromptBarProps>(function PromptBar
             error={error}
             ref={inputRef}
             className="md:pb-16"
+            disabled={disabled}
           />
           {/* Overlay actions on md+ */}
           <div className="hidden md:block absolute w-full px-6 bottom-4 right-0">
@@ -98,8 +104,9 @@ const PromptBar = forwardRef<PromptBarHandle, PromptBarProps>(function PromptBar
                   type="submit"
                   size="lg"
                   className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-md"
+                  disabled={disabled}
                 >
-                  Generate
+                  {disabled ? "Creating..." : "Generate"}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
@@ -125,8 +132,9 @@ const PromptBar = forwardRef<PromptBarHandle, PromptBarProps>(function PromptBar
                   type="submit"
                   size="sm"
                   className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-md"
+                  disabled={disabled}
                 >
-                  Generate
+                  {disabled ? "Creating..." : "Generate"}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
