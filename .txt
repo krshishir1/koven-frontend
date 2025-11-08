@@ -1,0 +1,3 @@
+ok now we need to add that if user is already logged and enter prompt then it should redirect to /app with entered prompt
+and same if not logged and enters prompt then redirect to login but save prompt and after login redirect to /app with saved prompt
+also integrate 

@@ -61,7 +61,7 @@ export default function ChatInput({
           value={input}
           onChange={handleInput}
           onKeyDown={handleKeyDown}
-          placeholder="Describe your miniapp or ask for changes..."
+          placeholder="Describe modifications in smart contract..."
           className="flex-1 pt-3 pb-1 text-sm text-foreground placeholder:text-neutral-400 focus:outline-none resize-none"
           rows={rows}
           disabled={isLoading}

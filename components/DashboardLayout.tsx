@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import ChatPanel from "@/components/dashboard/side-panels/chatbox/ChatPanel";
+import SearchPanel from "@/components/dashboard/side-panels/SearchPanel";
+import CompilerPanel from "@/components/dashboard/side-panels/CompilerPanel";
+import DeployPanel from "@/components/dashboard/side-panels/DeployPanel";
 import PreviewPanel from "@/components/dashboard/PreviewPanel";
 import ProjectHeader from "@/components/dashboard/ProjectHeader";
 import { useProjectStore } from "@/hooks/stores";
@@ -17,6 +20,7 @@ export default function DashboardLayout() {
   const projects = useProjectStore((s) => s.projects);
   const activeProjectId = useProjectStore((s) => s.activeProjectId);
   const setActiveProject = useProjectStore((s) => s.setActiveProject);
+  const activeTab = useProjectStore((s) => s.activeTab);
   const [mobileView, setMobileView] = useState<"chat" | "preview">("chat");
 
   // Get the active project
@@ -30,6 +34,22 @@ export default function DashboardLayout() {
       setActiveProject(projects[0].id);
     }
   }, [activeProjectId, projects, setActiveProject]);
+
+  // Render the active panel based on activeTab
+  const renderActivePanel = () => {
+    switch (activeTab) {
+      case "chat":
+        return <ChatPanel initialMessage={initialMessage} projectId={projectId} />;
+      case "search":
+        return <SearchPanel />;
+      case "compiler":
+        return <CompilerPanel />;
+      case "deploy":
+        return <DeployPanel />;
+      default:
+        return <ChatPanel initialMessage={initialMessage} projectId={projectId} />;
+    }
+  };
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -47,7 +67,7 @@ export default function DashboardLayout() {
           className="flex-1 flex overflow-hidden gap-0 h-full"
         >
           <ResizablePanel minSize={25} defaultSize={25} maxSize={40}>
-            <ChatPanel initialMessage={initialMessage} projectId={projectId} />
+            {renderActivePanel()}
           </ResizablePanel>
           <ResizableHandle
             className="bg-transparent"
@@ -62,7 +82,7 @@ export default function DashboardLayout() {
       {/* Mobile layout */}
       <div className="md:hidden flex-1 overflow-hidden">
         {mobileView === "chat" ? (
-          <ChatPanel initialMessage={initialMessage} projectId={projectId} />
+          renderActivePanel()
         ) : (
           <PreviewPanel projectId={projectId} />
         )}

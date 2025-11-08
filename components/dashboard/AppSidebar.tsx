@@ -36,6 +36,8 @@ export default function AppSidebar({
   const projects = useProjectStore((s) => s.projects);
   const activeProjectId = useProjectStore((s) => s.activeProjectId);
   const setActiveProjectGlobal = useProjectStore((s) => s.setActiveProject);
+  const activeTab = useProjectStore((s) => s.activeTab);
+  const setActiveTabGlobal = useProjectStore((s) => s.setActiveTab);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -139,10 +141,11 @@ export default function AppSidebar({
           <Button
             variant="ghost"
             size="icon"
+            onClick={() => setActiveTabGlobal("chat")}
             className={`h-10 ${
               sidebarOpen ? "w-10 justify-center" : "w-full justify-start px-2"
-            } hover:bg-secondary hover:text-white rounded-lg gap-3`}
-            title="Files"
+            } rounded-lg hover:bg-secondary hover:text-white gap-3`}
+            title="Chat"
           >
             <MessageCircleMore className="h-6 w-6" />
             {!sidebarOpen && <span className="text-sm">Chat bot</span>}
@@ -151,9 +154,10 @@ export default function AppSidebar({
           <Button
             variant="ghost"
             size="icon"
+            onClick={() => setActiveTabGlobal("search")}
             className={`h-10 ${
               sidebarOpen ? "w-10 justify-center" : "w-full justify-start px-2"
-            } hover:bg-secondary hover:text-white rounded-lg gap-3`}
+            } rounded-lg hover:bg-secondary hover:text-white gap-3`}
             title="Search"
           >
             <Search className="h-6 w-6" />
@@ -163,9 +167,10 @@ export default function AppSidebar({
            <Button
             variant="ghost"
             size="icon"
+            onClick={() => setActiveTabGlobal("compiler")}
             className={`h-10 ${
               sidebarOpen ? "w-10 justify-center" : "w-full justify-start px-2"
-            } hover:bg-secondary hover:text-white rounded-lg gap-3`}
+            } rounded-lg hover:bg-secondary hover:text-white gap-3`}
             title="Compile"
           >
             <BookCheck className="h-6 w-6" />
@@ -175,9 +180,10 @@ export default function AppSidebar({
           <Button
             variant="ghost"
             size="icon"
+            onClick={() => setActiveTabGlobal("deploy")}
             className={`h-10 ${
               sidebarOpen ? "w-10 justify-center" : "w-full justify-start px-2"
-            } hover:bg-secondary hover:text-white rounded-lg gap-3`}
+            } rounded-lg hover:bg-secondary hover:text-white gap-3`}
             title="Deploy"
           >
             <Anchor className="h-6 w-6" />

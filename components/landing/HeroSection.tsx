@@ -4,7 +4,7 @@ import PromptBar, { PromptBarHandle } from "./PromptBar"
 import IdeaChips from "./IdeaChips"
 import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useProjectStore, useAuthStore } from "@/hooks/stores"
+import { useProjectStore, useAuthStore, useFileStore } from "@/hooks/stores"
 
 const IDEA_PILLS = ["Launchpad", "Betting Game", "Quiz"]
 
@@ -13,7 +13,8 @@ export default function Hero() {
   const router = useRouter()
   const addProject = useProjectStore((s) => s.addProject)
   const setActiveProject = useProjectStore((s) => s.setActiveProject)
-  const { isAuthenticated, checkAuth, isLoading: authLoading } = useAuthStore()
+  const fetchProjectFiles = useFileStore((s) => s.fetchProjectFiles)
+  const { isAuthenticated, isLoading: authLoading } = useAuthStore()
   const [isCreating, setIsCreating] = useState(false)
 
   const handleSubmit = async (idea: string) => {
@@ -21,10 +22,8 @@ export default function Hero() {
 
     setIsCreating(true)
     try {
-      // Check authentication - this will trigger Auth0 popup if not authenticated
-      const authenticated = await checkAuth()
       
-      if (!authenticated) {
+      if (!isAuthenticated) {
         console.error("Authentication failed")
         setIsCreating(false)
         return
@@ -35,6 +34,9 @@ export default function Hero() {
       
       // Set as active project
       setActiveProject(project.id)
+      
+      // Fetch files from backend after user is authenticated
+      await fetchProjectFiles(project.id, idea)
       
       // Navigate to app dashboard
       router.push("/app")

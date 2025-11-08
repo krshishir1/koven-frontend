@@ -34,7 +34,7 @@ const PromptBar = forwardRef<PromptBarHandle, PromptBarProps>(function PromptBar
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   // ✅ Zustand store hooks
-  const { checkAuth, login, isLoading: authLoading } = useAuthStore();
+  const { isAuthenticated, login, isLoading: authLoading } = useAuthStore()
 
   useImperativeHandle(ref, () => ({
     setIdeaAndFocus: (value: string) => {
@@ -62,18 +62,18 @@ const PromptBar = forwardRef<PromptBarHandle, PromptBarProps>(function PromptBar
 
     setError("");
 
-    // ✅ Step 1: Check backend Auth0 session
-    const authenticated = await checkAuth();
-
-    if (!authenticated) {
-      // ✅ Step 2: Redirect to backend login route
-      const encodedIdea = encodeURIComponent(idea);
-      window.location.href = `http://localhost:8000/login?returnTo=http://localhost:3000/app?idea=${encodedIdea}`;
-      return;
+    // ✅ Step 1: Check if user is already authenticated (from the store)
+    if (isAuthenticated) {
+      // ✅ User is logged in: Proceed to submit
+      onSubmit(idea);
+    } else {
+      // ✅ User is not logged in:
+      // 1. Save the prompt to sessionStorage (it's temporary)
+      sessionStorage.setItem("pendingPrompt", idea);
+      
+      // 2. Call the login action
+      login();
     }
-
-    // ✅ Step 3: User is authenticated — trigger parent submit handler
-    onSubmit(idea);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
