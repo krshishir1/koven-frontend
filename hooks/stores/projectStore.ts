@@ -2,6 +2,7 @@ import { create } from "zustand"
 import { persist, createJSONStorage } from "zustand/middleware"
 
 export type ProjectStatus = "draft" | "published" | "ready"
+export type ActiveTab = "chat" | "search" | "compiler" | "deploy"
 
 export interface Project {
   id: string
@@ -22,6 +23,7 @@ interface ProjectState {
   projects: Project[]
   chatsByProjectId: Record<string, ChatMessage[]>
   activeProjectId: string | null
+  activeTab: ActiveTab
 
   // Actions
   addProject: (idea: string) => Project
@@ -35,6 +37,7 @@ interface ProjectState {
   ) => ChatMessage
   getProjectChats: (projectId: string) => ChatMessage[]
   setActiveProject: (projectId: string | null) => void
+  setActiveTab: (tab: ActiveTab) => void
   clearChats: (projectId: string) => void
 }
 
@@ -138,6 +141,7 @@ function getInitialState() {
     projects: [p1, p2, p3],
     chatsByProjectId: initialChats,
     activeProjectId: p1.id,
+    activeTab: "chat" as ActiveTab,
   }
 }
 
@@ -233,6 +237,10 @@ export const useProjectStore = create<ProjectState>()(
           set({ activeProjectId: projectId })
         },
 
+        setActiveTab: (tab) => {
+          set({ activeTab: tab })
+        },
+
         clearChats: (projectId) => {
           set((state) => ({
             chatsByProjectId: {
@@ -251,6 +259,7 @@ export const useProjectStore = create<ProjectState>()(
         projects: state.projects,
         chatsByProjectId: state.chatsByProjectId,
         activeProjectId: state.activeProjectId,
+        activeTab: state.activeTab,
       }),
     }
   )

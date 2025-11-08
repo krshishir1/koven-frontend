@@ -4,7 +4,7 @@ import PromptBar, { PromptBarHandle } from "./PromptBar"
 import IdeaChips from "./IdeaChips"
 import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useProjectStore, useAuthStore } from "@/hooks/stores"
+import { useProjectStore, useAuthStore, useFileStore } from "@/hooks/stores"
 
 const IDEA_PILLS = ["Launchpad", "Betting Game", "Quiz"]
 
@@ -13,6 +13,7 @@ export default function Hero() {
   const router = useRouter()
   const addProject = useProjectStore((s) => s.addProject)
   const setActiveProject = useProjectStore((s) => s.setActiveProject)
+  const fetchProjectFiles = useFileStore((s) => s.fetchProjectFiles)
   const { isAuthenticated, checkAuth, isLoading: authLoading } = useAuthStore()
   const [isCreating, setIsCreating] = useState(false)
 
@@ -35,6 +36,9 @@ export default function Hero() {
       
       // Set as active project
       setActiveProject(project.id)
+      
+      // Fetch files from backend after user is authenticated
+      await fetchProjectFiles(project.id, idea)
       
       // Navigate to app dashboard
       router.push("/app")

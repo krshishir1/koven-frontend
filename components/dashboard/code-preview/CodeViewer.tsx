@@ -1,39 +1,22 @@
+// CodeEditor.tsx
 "use client";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
-import type { FileNode } from "./FileExplorer";
+import Editor from "@monaco-editor/react";
 
-interface CodeViewerProps {
-  file: FileNode | null;
-}
-
-export default function CodeViewer({ file }: CodeViewerProps) {
-  if (!file) {
-    return (
-      <div className="text-gray-400 flex items-center justify-center h-full">
-        Select a file to preview code
-      </div>
-    );
-  }
-
+export default function CodeEditor({ code, onChange, language }: any) {
   return (
-    <div className="h-full w-full overflow-auto">
-      <div className="border-b pb-2 mb-3 text-xs text-gray-500">
-        {file.name}
-      </div>
-      <SyntaxHighlighter
-        language="tsx"
-        style={oneLight}
-        customStyle={{
-          background: "transparent",
-          padding: "1rem",
-          fontSize: "0.85rem",
-          borderRadius: "0.5rem",
+    <div className="flex-1">
+      <Editor
+        height="100%"
+        defaultLanguage={language || "solidity"}
+        theme="vs-light"
+        value={code}
+        onChange={(val) => onChange(val || "")}
+        options={{
+          minimap: { enabled: false },
+          fontSize: 14,
+          smoothScrolling: true,
         }}
-        showLineNumbers
-      >
-        {file.content || ""}
-      </SyntaxHighlighter>
+      />
     </div>
   );
 }
