@@ -1,10 +1,11 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Menu, LogOut} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AccountMenu from "./AccountMenu";
 import PaymentMenu from "./PaymentMenu";
 import Link from "next/link";
+import { useAuthStore } from "@/hooks/stores";
 
 import { useProjectStore } from "@/hooks/stores";
 
@@ -17,6 +18,7 @@ export default function AppNavbar({ onToggleSidebar }: AppNavbarProps) {
     const projects = useProjectStore((s) => s.projects);
     const activeProjectId = useProjectStore((s) => s.activeProjectId);
     const activeProject = projects.find((el) => el.id === activeProjectId);
+    const { logout } = useAuthStore();
 
   return (
     <nav
@@ -50,6 +52,16 @@ export default function AppNavbar({ onToggleSidebar }: AppNavbarProps) {
 
       <div className="flex items-center gap-4">
         <PaymentMenu project={activeProject} />
+
+        <Button
+          size="icon"
+          onClick={logout}
+          aria-label="Log out"
+          title="Log out"
+          className="bg-red-500 text-white"
+        >
+          <LogOut className="h-5 w-5" />
+        </Button>
       </div>
     </nav>
   );

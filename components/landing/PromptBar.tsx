@@ -1,12 +1,18 @@
 "use client";
 
-import type React from "react";
-import { useRef, useState, forwardRef, useImperativeHandle } from "react";
+import React, {
+  useRef,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+  FormEvent,
+  KeyboardEvent,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Plus, SlidersHorizontal } from "lucide-react";
+import { useAuthStore } from "@/hooks/stores";
 
-import { Plus, SlidersHorizontal, Send, ArrowUp } from "lucide-react";
 
 interface PromptBarProps {
   onSubmit: (idea: string) => void;
@@ -25,13 +31,15 @@ const PromptBar = forwardRef<PromptBarHandle, PromptBarProps>(function PromptBar
 ) {
   const [idea, setIdea] = useState("");
   const [error, setError] = useState("");
-  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // ✅ Zustand store hooks
+  const { isAuthenticated, login, isLoading: authLoading } = useAuthStore()
 
   useImperativeHandle(ref, () => ({
     setIdeaAndFocus: (value: string) => {
       setIdea(value);
       setError("");
-      // Focus the textarea and move caret to end
       if (inputRef.current) {
         const el = inputRef.current;
         el.focus();
@@ -41,12 +49,11 @@ const PromptBar = forwardRef<PromptBarHandle, PromptBarProps>(function PromptBar
     },
   }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // ✅ Handle form submit
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (disabled) {
-      return;
-    }
+    if (disabled || authLoading) return;
 
     if (!idea.trim()) {
       setError("Tell us your idea to get started.");
@@ -54,10 +61,22 @@ const PromptBar = forwardRef<PromptBarHandle, PromptBarProps>(function PromptBar
     }
 
     setError("");
-    onSubmit(idea);
+
+    // ✅ Step 1: Check if user is already authenticated (from the store)
+    if (isAuthenticated) {
+      // ✅ User is logged in: Proceed to submit
+      onSubmit(idea);
+    } else {
+      // ✅ User is not logged in:
+      // 1. Save the prompt to sessionStorage (it's temporary)
+      sessionStorage.setItem("pendingPrompt", idea);
+      
+      // 2. Call the login action
+      login();
+    }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e as any);
@@ -78,25 +97,27 @@ const PromptBar = forwardRef<PromptBarHandle, PromptBarProps>(function PromptBar
             onChange={(e) => handleIdeaChange(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            rows={3}
-            error={error}
             ref={inputRef}
             className="md:pb-16"
-            disabled={disabled}
+            disabled={disabled || authLoading}
           />
+
           {/* Overlay actions on md+ */}
           <div className="hidden md:block absolute w-full px-6 bottom-4 right-0">
             <div className="w-full flex items-center justify-between">
               <div className="flex-1 flex items-center gap-1 text-gray-700">
-                <button className="w-8 h-8 px-2 rounded-md text-muted-foreground hover:bg-muted">
+                <button
+                  type="button"
+                  className="w-8 h-8 px-2 rounded-md text-muted-foreground hover:bg-muted"
+                >
                   <Plus strokeWidth={2.5} className="w-4 cursor-pointer" />
                 </button>
 
-                <button className="w-8 h-8 px-2 rounded-md text-muted-foreground hover:bg-muted">
-                  <SlidersHorizontal
-                    strokeWidth={2.5}
-                    className="w-4 cursor-pointer"
-                  />
+                <button
+                  type="button"
+                  className="w-8 h-8 px-2 rounded-md text-muted-foreground hover:bg-muted"
+                >
+                  <SlidersHorizontal strokeWidth={2.5} className="w-4 cursor-pointer" />
                 </button>
               </div>
               <div>
@@ -104,27 +125,31 @@ const PromptBar = forwardRef<PromptBarHandle, PromptBarProps>(function PromptBar
                   type="submit"
                   size="lg"
                   className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-md"
-                  disabled={disabled}
+                  disabled={disabled || authLoading}
                 >
-                  {disabled ? "Creating..." : "Generate"}
+                  {disabled || authLoading ? "Checking..." : "Generate"}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
             </div>
           </div>
+
           {/* Stacked actions on small screens */}
           <div className="md:hidden mt-3 px-1">
             <div className="w-full flex items-center justify-between">
               <div className="flex-1 flex items-center gap-1 text-gray-700">
-                <button className="w-8 h-8 px-2 rounded-md text-muted-foreground hover:bg-muted">
+                <button
+                  type="button"
+                  className="w-8 h-8 px-2 rounded-md text-muted-foreground hover:bg-muted"
+                >
                   <Plus strokeWidth={2.5} className="w-4 cursor-pointer" />
                 </button>
 
-                <button className="w-8 h-8 px-2 rounded-md text-muted-foreground hover:bg-muted">
-                  <SlidersHorizontal
-                    strokeWidth={2.5}
-                    className="w-4 cursor-pointer"
-                  />
+                <button
+                  type="button"
+                  className="w-8 h-8 px-2 rounded-md text-muted-foreground hover:bg-muted"
+                >
+                  <SlidersHorizontal strokeWidth={2.5} className="w-4 cursor-pointer" />
                 </button>
               </div>
               <div>
@@ -132,15 +157,16 @@ const PromptBar = forwardRef<PromptBarHandle, PromptBarProps>(function PromptBar
                   type="submit"
                   size="sm"
                   className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-md"
-                  disabled={disabled}
+                  disabled={disabled || authLoading}
                 >
-                  {disabled ? "Creating..." : "Generate"}
+                  {disabled || authLoading ? "Checking..." : "Generate"}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
             </div>
           </div>
         </div>
+
         {error && (
           <p className="text-destructive text-sm mt-2 text-left">{error}</p>
         )}

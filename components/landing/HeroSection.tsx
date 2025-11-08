@@ -14,7 +14,7 @@ export default function Hero() {
   const addProject = useProjectStore((s) => s.addProject)
   const setActiveProject = useProjectStore((s) => s.setActiveProject)
   const fetchProjectFiles = useFileStore((s) => s.fetchProjectFiles)
-  const { isAuthenticated, checkAuth, isLoading: authLoading } = useAuthStore()
+  const { isAuthenticated, isLoading: authLoading } = useAuthStore()
   const [isCreating, setIsCreating] = useState(false)
 
   const handleSubmit = async (idea: string) => {
@@ -22,10 +22,8 @@ export default function Hero() {
 
     setIsCreating(true)
     try {
-      // Check authentication - this will trigger Auth0 popup if not authenticated
-      const authenticated = await checkAuth()
       
-      if (!authenticated) {
+      if (!isAuthenticated) {
         console.error("Authentication failed")
         setIsCreating(false)
         return
