@@ -38,9 +38,9 @@ export default function AppNavbar({ onToggleSidebar }: AppNavbarProps) {
           <Menu className="h-5 w-5" />
         </Button>
         {/* <div className="text-xl font-bold text-foreground">Minidev</div> */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <Link href={"/"} className="flex items-center gap-1 cursor-pointer">
-            <img src="/minidevfun.png" alt="Minidev" className="w-12" />
+            <img src="/koven.svg" alt="Koven" className="w-5" />
 
         
             {/* <span className="text-xl font-bold text-foreground">Minidev</span> */}

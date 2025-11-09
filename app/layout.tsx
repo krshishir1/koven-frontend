@@ -6,8 +6,8 @@ import "./globals.css";
 import AuthInitializer from "@/components/AuthInitializer";
 
 export const metadata: Metadata = {
-  title: "Minidev - Build viral miniapps on Farcaster",
-  description: "Create miniapps with a single prompt—no coding required.",
+  title: "Koven - Smart Contract Development Platform",
+  description: "Build, test, and deploy smart contracts with ease.",
   generator: "v0.app",
 };
 
