@@ -1,8 +1,9 @@
 import WalletConnectPanel from "./WalletConnection";
 import ContractSelect from "./ContractSelect";
 
-import { useDeploySampleContract, useAccountStore } from "@/hooks/stores";
+import { useDeploySampleContract, useAccountStore, useProjectStore, useFileStore, useTerminalStore } from "@/hooks/stores";
 import { formatDistanceToNow } from "date-fns";
+import { useState, useMemo, useEffect } from "react";
 
 export function formatAddress(address?: string, chars = 4) {
   if (!address) return "";
@@ -15,12 +16,137 @@ export default function DeployPanel() {
   const removeDeployedContract = useAccountStore(
     (state) => state.removeDeployedContract
   );
+  const activeProjectId = useProjectStore((s) => s.activeProjectId);
+  const getProjectFiles = useFileStore((s) => s.getProjectFiles);
+  const getCompiledContracts = useFileStore((s) => s.getCompiledContracts);
+  const addLog = useTerminalStore((state) => state.addLog);
+  const [selectedContract, setSelectedContract] = useState<string>("");
+
+  // Get all Solidity files and their compiled contracts
+  const contractOptions = useMemo(() => {
+    if (!activeProjectId) return [];
+    
+    const files = getProjectFiles(activeProjectId);
+    const solidityFiles = files.filter((file) => file.path.endsWith(".sol"));
+    const compiledContracts = getCompiledContracts(activeProjectId);
+    
+    const contracts: Array<{
+      fileName: string;
+      contractName: string;
+      filePath: string;
+      hasAbi: boolean;
+      hasBytecode: boolean;
+    }> = [];
+
+    solidityFiles.forEach((file) => {
+      const compiled = compiledContracts[file.path];
+      if (compiled) {
+        // If there's a compiled contract for this file
+        contracts.push({
+          fileName: file.path,
+          contractName: compiled.contractName,
+          filePath: file.path,
+          hasAbi: !!compiled.abi && compiled.abi.length > 0,
+          hasBytecode: !!compiled.bytecode && compiled.bytecode.length > 0,
+        });
+      } else {
+        // If file exists but not compiled, still show it
+        contracts.push({
+          fileName: file.path,
+          contractName: file.path.split("/").pop()?.replace(".sol", "") || "Unknown",
+          filePath: file.path,
+          hasAbi: false,
+          hasBytecode: false,
+        });
+      }
+    });
+
+    return contracts;
+  }, [activeProjectId, getProjectFiles, getCompiledContracts]);
+
+  // Set first contract as selected by default
+  useEffect(() => {
+    if (!selectedContract && contractOptions.length > 0) {
+      const firstContract = `${contractOptions[0].filePath}:${contractOptions[0].contractName}`;
+      setSelectedContract(firstContract);
+    }
+  }, [contractOptions, selectedContract]);
 
   const handleDeployContract = async () => {
+    if (!selectedContract) {
+      addLog("Please select a contract to deploy", "error");
+      return;
+    }
+
+    const [filePath, contractName] = selectedContract.split(":");
+    const contractOption = contractOptions.find(
+      (c) => c.filePath === filePath && c.contractName === contractName
+    );
+
+    if (!contractOption) {
+      addLog("Selected contract not found", "error");
+      return;
+    }
+
+    // Get compiled contract data
+    if (!activeProjectId) {
+      addLog("No active project selected", "error");
+      return;
+    }
+    
+    const compiledContracts = getCompiledContracts(activeProjectId);
+    const compiledContract = compiledContracts[filePath];
+
+    // Check for ABI and bytecode
+    const hasAbi = contractOption.hasAbi;
+    const hasBytecode = contractOption.hasBytecode;
+
+    // Debug logging
+    console.log("=== Deployment Debug Info ===");
+    console.log("Selected Contract:", contractName);
+    console.log("File Path:", filePath);
+    console.log("Has ABI:", hasAbi);
+    console.log("Has Bytecode:", hasBytecode);
+    
+    if (compiledContract) {
+      console.log("ABI:", compiledContract.abi);
+      console.log("Bytecode:", compiledContract.bytecode);
+      console.log("Deployed Bytecode:", compiledContract.deployedBytecode);
+    } else {
+      console.log("Compiled contract data not found");
+    }
+    console.log("===========================");
+
+    // Show warnings if ABI or bytecode is missing
+    if (!hasAbi) {
+      addLog(
+        `⚠️ Warning: ABI not found for contract "${contractName}" in file "${filePath}". Deployment may fail.`,
+        "warning"
+      );
+    }
+
+    if (!hasBytecode) {
+      addLog(
+        `⚠️ Warning: Bytecode not found for contract "${contractName}" in file "${filePath}". Deployment may fail.`,
+        "warning"
+      );
+    }
+
+    if (!hasAbi || !hasBytecode) {
+      addLog(
+        "💡 Tip: Compile the contract first using the Compiler panel to generate ABI and bytecode.",
+        "info"
+      );
+    }
+
+    // Still proceed with deployment (using sample contract for now)
+    // TODO: Update to use actual compiled contract ABI and bytecode
     try {
+      addLog(`Deploying contract "${contractName}"...`, "info");
       await deployContract();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Deployment error:", error);
+      addLog(`Deployment failed: ${error?.message || "Unknown error"}`, "error");
     }
   };
 
@@ -55,7 +181,30 @@ export default function DeployPanel() {
       </div>
 
       <div>
-        <ContractSelect />
+        <label className="text-sm font-medium">Contract</label>
+        <ContractSelect
+          files={contractOptions.map((c) => `${c.filePath}:${c.contractName}`)}
+          onSelect={setSelectedContract}
+        />
+        {selectedContract && contractOptions.length > 0 && (() => {
+          const [filePath, contractName] = selectedContract.split(":");
+          const contract = contractOptions.find(
+            (c) => c.filePath === filePath && c.contractName === contractName
+          );
+          if (contract && (!contract.hasAbi || !contract.hasBytecode)) {
+            return (
+              <p className="text-xs text-yellow-600 mt-1">
+                ⚠️ This contract needs to be compiled first
+              </p>
+            );
+          }
+          return null;
+        })()}
+        {contractOptions.length === 0 && (
+          <p className="text-xs text-gray-500 mt-1">
+            No Solidity contracts found. Generate a project first.
+          </p>
+        )}
       </div>
 
       <button

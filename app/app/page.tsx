@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/hooks/stores";
 import DashboardLayout from "@/components/DashboardLayout"; // Your layout
@@ -15,9 +15,13 @@ export default function Page() {
   // ✅ Get the AI flow actions
   const addProject = useProjectStore((s) => s.addProject);
   const setActiveProject = useProjectStore((s) => s.setActiveProject);
+  const activeProjectId = useProjectStore((s) => s.activeProjectId);
   const fetchProjectFiles = useFileStore((s) => s.fetchProjectFiles);
+  const getProjectFiles = useFileStore((s) => s.getProjectFiles);
+  const artifactIdsByProjectId = useFileStore((s) => s.artifactIdsByProjectId);
   
   const [isProcessingPrompt, setIsProcessingPrompt] = useState(false);
+  const hasProcessedPendingPrompt = useRef(false);
 
   // --- Effect 1: Handle Protection ---
   useEffect(() => {
@@ -29,12 +33,28 @@ export default function Page() {
 
   // --- Effect 2: Handle the Pending Prompt Flow ---
   useEffect(() => {
+    // Only run once
+    // if (hasProcessedPendingPrompt.current) return;
+    
     // Only run this if the user is authenticated
     if (!isAuthenticated) return;
 
     const pendingPrompt = sessionStorage.getItem("pendingPrompt");
 
     if (pendingPrompt) {
+      // Check if active project has files - only run if files are empty
+      if (activeProjectId) {
+        const files = getProjectFiles(activeProjectId);
+        if (files.length > 0) {
+          // Project already has files, don't process pending prompt
+          sessionStorage.removeItem("pendingPrompt"); // Clear it anyway
+          return;
+        }
+      }
+
+      // Mark as processed to prevent running again
+      hasProcessedPendingPrompt.current = true;
+      
       // We found a prompt. User just logged in.
       sessionStorage.removeItem("pendingPrompt"); // Clear it
       setIsProcessingPrompt(true);
@@ -57,7 +77,7 @@ export default function Page() {
 
       handlePrompt(pendingPrompt);
     }
-  }, [isAuthenticated, addProject, setActiveProject, fetchProjectFiles]); // Run when auth status changes
+  }, [isAuthenticated, addProject, setActiveProject, fetchProjectFiles, activeProjectId, getProjectFiles]); // Run when auth status changes
 
   // --- Render Logic ---
   

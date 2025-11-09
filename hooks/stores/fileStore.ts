@@ -23,6 +23,14 @@ export interface ProjectMetadata {
   notes: string
 }
 
+export interface CompiledContract {
+  fileName: string
+  contractName: string
+  abi: any[]
+  bytecode: string
+  deployedBytecode?: string
+}
+
 export interface BackendResponse {
   ok: boolean
   artifactId: string
@@ -135,6 +143,9 @@ interface FileState {
   metadataByProjectId: Record<string, ProjectMetadata>;
   artifactIdsByProjectId: Record<string, string>;
 
+  // Store compiled contracts by project ID and fileName
+  compiledContractsByProjectId: Record<string, Record<string, CompiledContract>>;
+
   // Selected file for viewing
   selectedFilePath: string | null;
   selectedProjectId: string | null;
@@ -163,6 +174,11 @@ interface FileState {
   getFileByPath: (projectId: string, filePath: string) => BackendFile | null;
   setSelectedFile: (projectId: string | null, filePath: string | null) => void;
   clearProjectFiles: (projectId: string) => void;
+  
+  // Compiled contract actions
+  saveCompiledContract: (projectId: string, contract: CompiledContract) => void;
+  getCompiledContract: (projectId: string, fileName: string) => CompiledContract | null;
+  getCompiledContracts: (projectId: string) => Record<string, CompiledContract>;
 }
 
 export const useFileStore = create<FileState>()(
@@ -171,6 +187,7 @@ export const useFileStore = create<FileState>()(
       filesByProjectId: {},
       metadataByProjectId: {},
       artifactIdsByProjectId: {},
+      compiledContractsByProjectId: {},
       selectedFilePath: null,
       selectedProjectId: null,
       isLoading: false, // 4. Set initial state
@@ -374,11 +391,16 @@ export const useFileStore = create<FileState>()(
       [projectId]: removedArtifactId,
       ...remainingArtifactIds
      } = state.artifactIdsByProjectId
+     const {
+      [projectId]: removedCompiledContracts,
+      ...remainingCompiledContracts
+     } = state.compiledContractsByProjectId
 
      return {
       filesByProjectId: remainingFiles,
       metadataByProjectId: remainingMetadata,
       artifactIdsByProjectId: remainingArtifactIds,
+      compiledContractsByProjectId: remainingCompiledContracts,
       selectedFilePath:
        state.selectedProjectId === projectId
         ? null
@@ -390,6 +412,30 @@ export const useFileStore = create<FileState>()(
     }
     })
    },
+
+   saveCompiledContract: (projectId, contract) => {
+    set((state) => {
+     const projectContracts = state.compiledContractsByProjectId[projectId] || {}
+     return {
+      compiledContractsByProjectId: {
+       ...state.compiledContractsByProjectId,
+       [projectId]: {
+        ...projectContracts,
+        [contract.fileName]: contract,
+       },
+      },
+     }
+    })
+   },
+
+   getCompiledContract: (projectId, fileName) => {
+    const projectContracts = get().compiledContractsByProjectId[projectId]
+    return projectContracts?.[fileName] || null
+   },
+
+   getCompiledContracts: (projectId) => {
+    return get().compiledContractsByProjectId[projectId] || {}
+   },
     }),
     {
       name: "file-store",
@@ -399,6 +445,7 @@ export const useFileStore = create<FileState>()(
         filesByProjectId: state.filesByProjectId,
         metadataByProjectId: state.metadataByProjectId,
         artifactIdsByProjectId: state.artifactIdsByProjectId,
+        compiledContractsByProjectId: state.compiledContractsByProjectId,
         selectedFilePath: state.selectedFilePath,
         selectedProjectId: state.selectedProjectId,
         // Don't persist isLoading or error

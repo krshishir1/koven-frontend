@@ -21,25 +21,46 @@ export default function ContractSelect({ files = [], onSelect }: ContractSelectP
   useEffect(() => {
     if (!selected && files.length > 0) {
       setSelected(files[0]);
+      onSelect?.(files[0]);
     }
-  }, [files]);
+  }, [files, selected, onSelect]);
+
+  const getDisplayName = (file: string) => {
+    const [filePath, contractName] = file.includes(":") 
+      ? file.split(":") 
+      : [file, file.split("/").pop()?.replace(".sol", "") || file];
+    return contractName 
+      ? `${contractName} (${filePath})` 
+      : filePath;
+  };
 
   return (
     <div className="w-full">
-      <Label className="text-sm font-medium text-gray-700">Contract</Label>
+      {/* <Label className="text-sm font-medium text-gray-700">Contract</Label> */}
 
       <Select value={selected} onValueChange={handleChange}>
         <SelectTrigger className="w-full mt-1 border rounded-md px-3 py-2 focus:ring-1 focus:ring-gray-400">
-          <SelectValue placeholder="Select a Solidity contract" />
+          <SelectValue placeholder="Select a Solidity contract">
+            {selected ? getDisplayName(selected) : "Select a Solidity contract"}
+          </SelectValue>
         </SelectTrigger>
 
         <SelectContent>
           {files.length > 0 ? (
-            files.map((file) => (
-              <SelectItem key={file} value={file}>
-                {file}
-              </SelectItem>
-            ))
+            files.map((file) => {
+              // Parse filePath:contractName format
+              const [filePath, contractName] = file.includes(":") 
+                ? file.split(":") 
+                : [file, file.split("/").pop()?.replace(".sol", "") || file];
+              const displayName = contractName 
+                ? `${contractName} (${filePath})` 
+                : filePath;
+              return (
+                <SelectItem key={file} value={file}>
+                  {displayName}
+                </SelectItem>
+              );
+            })
           ) : (
             <SelectItem value="none" disabled>
               No Solidity files found
