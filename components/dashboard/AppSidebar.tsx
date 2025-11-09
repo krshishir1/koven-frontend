@@ -18,6 +18,7 @@ import {
   Bug,
   CheckCheck,
   GitBranch,
+  ScanBarcode
 } from "lucide-react";
 
 // Data is loaded from zustand store
@@ -164,7 +165,7 @@ export default function AppSidebar({
             {!sidebarOpen && <span className="text-sm">Search in Files</span>}
           </Button>
 
-           <Button
+          <Button
             variant="ghost"
             size="icon"
             onClick={() => setActiveTabGlobal("compiler")}
@@ -187,12 +188,26 @@ export default function AppSidebar({
             title="Deploy"
           >
             <Anchor className="h-6 w-6" />
-            {!sidebarOpen && <span className="text-sm">Deploy Smart Contracts</span>}
+            {!sidebarOpen && (
+              <span className="text-sm">Deploy Smart Contracts</span>
+            )}
           </Button>
         </>
       </div>
 
       {/* Settings button at bottom */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className={`h-10 ${
+          sidebarOpen ? "w-10 justify-center" : "w-full justify-start px-2"
+        } rounded-lg gap-3`}
+        aria-label="Settings"
+        title="Auditor"
+      >
+        <ScanBarcode className="h-5 w-5" />
+        {!sidebarOpen && <span className="text-sm">Connect With Auditors</span>}
+      </Button>
       <Button
         variant="ghost"
         size="icon"

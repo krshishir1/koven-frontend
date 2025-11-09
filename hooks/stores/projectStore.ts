@@ -6,7 +6,7 @@ export type ActiveTab = "chat" | "search" | "compiler" | "deploy"
 
 export interface Project {
   id: string
-  idea: string
+  idea: string 
   title: string
   status: ProjectStatus
   createdAt: number
@@ -155,6 +155,7 @@ export const useProjectStore = create<ProjectState>()(
 
         addProject: (idea: string) => {
           const state = get()
+          // mongodb id
           const newProject: Project = {
             id: generateId(),
             idea,

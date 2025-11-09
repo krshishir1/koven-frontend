@@ -12,26 +12,18 @@ export default function Navbar() {
       <div className="container mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
         <Link href="/" className="text-xl font-bold text-foreground">
           <div className="flex items-center gap-1 sm:gap-2">
-            <img src="/minidevfun-tsp.png" alt="Minidev" className="w-9 sm:w-12" />
-            <span className="hidden sm:inline text-xl font-bold text-foreground">Minidev</span>
+            <img src="/koven.svg" alt="Minidev" className="w-6 sm:w-6" />
+            <span className="hidden sm:inline text-xl font-bold text-foreground">Koven</span>
           </div>
         </Link>
         <div className="flex items-center gap-3 sm:gap-4">
           <Link
-            href="https://x.com/minidevfun"
+            href="/app"
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            X
-          </Link>
-          <Link
-            href="https://farcaster.xyz/minidev"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Farcaster
+            Dashboard
           </Link>
           <Button
           size="icon"

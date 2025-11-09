@@ -3,8 +3,11 @@
 import Editor from "@monaco-editor/react";
 
 export default function CodeEditor({ code, onChange, language }: any) {
+
+  console.log(code, language);
+
   return (
-    <div className="flex-1">
+    <div className="flex-1 h-full pt-3">
       <Editor
         height="100%"
         defaultLanguage={language || "solidity"}

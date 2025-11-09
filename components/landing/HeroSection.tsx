@@ -6,7 +6,7 @@ import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useProjectStore, useAuthStore, useFileStore } from "@/hooks/stores"
 
-const IDEA_PILLS = ["Launchpad", "Betting Game", "Quiz"]
+import { promptIdeas } from "@/hooks/promptIdeas"
 
 export default function Hero() {
   const promptBarRef = useRef<PromptBarHandle | null>(null)
@@ -47,9 +47,9 @@ export default function Hero() {
     }
   }
 
-  const handlePillClick = (pill: string) => {
-    const idea = `Create a ${pill.toLowerCase()} for music artist tokens`
-    promptBarRef.current?.setIdeaAndFocus(idea)
+  const handlePillClick = (idea: string) => {
+    const prompt = promptIdeas.find((p) => p.name === idea)?.prompt
+    promptBarRef.current?.setIdeaAndFocus(prompt)
   }
 
   return (
@@ -64,12 +64,12 @@ export default function Hero() {
       
       <div className="container relative mx-auto md:h-[95vh] min-h-[80vh] px-4 py-16 md:py-32">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-balance mb-6">
-            Build viral <span className="text-black">miniapps</span> on <span className="text-secondary">Farcaster</span>
+          <h1 className="text-4xl md:text-6xl lg:text-6xl font-bold tracking-tight text-balance mb-6">
+            Build and Deploy <span className="text-secondary">Smart Contracts</span> 3x Faster
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground text-balance mb-12">
-            Create miniapps with a single prompt—no coding required.
+            Your go-to playground for smart contract development.
           </p>
 
           {/* Enhanced PromptBar with highlighted background */}
@@ -87,7 +87,7 @@ export default function Hero() {
           {/* Enhanced IdeaChips with better styling */}
           <div className="relative">
             <IdeaChips 
-              ideas={IDEA_PILLS} 
+              ideas={promptIdeas.map((idea) => idea.name)} 
               onIdeaClick={handlePillClick} 
               className="gap-3"
             />

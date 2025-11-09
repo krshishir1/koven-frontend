@@ -26,7 +26,7 @@ export interface PromptBarHandle {
 }
 
 const PromptBar = forwardRef<PromptBarHandle, PromptBarProps>(function PromptBar(
-  { onSubmit, placeholder = "Describe your miniapp", className = "", disabled = false },
+  { onSubmit, placeholder = "Give instructions for your contracts", className = "", disabled = false },
   ref
 ) {
   const [idea, setIdea] = useState("");

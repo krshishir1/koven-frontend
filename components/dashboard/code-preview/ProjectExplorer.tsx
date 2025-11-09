@@ -4,7 +4,17 @@ import { useState, useEffect } from "react";
 import FileExplorer from "./FileExplorer";
 import CodeEditor from "./CodeViewer";
 import Terminal from "./Terminal";
-import { useFileStore, useProjectStore, type BackendFile } from "@/hooks/stores";
+import {
+  useFileStore,
+  useProjectStore,
+  type BackendFile,
+} from "@/hooks/stores";
+
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
 
 export default function EditorLayout() {
   const activeProjectId = useProjectStore((s) => s.activeProjectId);
@@ -20,7 +30,7 @@ export default function EditorLayout() {
   useEffect(() => {
     if (selectedFilePath) {
       let file: BackendFile | null = null;
-      
+
       // If we have an active project and the selected file belongs to it
       if (activeProjectId && selectedProjectId === activeProjectId) {
         // Get file from project
@@ -29,7 +39,7 @@ export default function EditorLayout() {
         // If no projectId, try sample data (for testing when no projectId)
         file = getSampleFileByPath(selectedFilePath);
       }
-      
+
       if (file) {
         setCode(file.content || "");
       } else {
@@ -38,7 +48,13 @@ export default function EditorLayout() {
     } else {
       setCode("");
     }
-  }, [activeProjectId, selectedProjectId, selectedFilePath, getFileByPath, getSampleFileByPath]);
+  }, [
+    activeProjectId,
+    selectedProjectId,
+    selectedFilePath,
+    getFileByPath,
+    getSampleFileByPath,
+  ]);
 
   const handleCodeChange = (newCode: string) => {
     setCode(newCode);
@@ -74,16 +90,28 @@ export default function EditorLayout() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white text-gray-800">
-      <div className="flex flex-1 overflow-hidden">
+    <div className="flex h-screen bg-white text-gray-800">
+      <div className="">
         <FileExplorer onSelect={handleFileSelect} />
-        <CodeEditor
-          code={code}
-          onChange={handleCodeChange}
-          language={getLanguage(selectedFilePath || null)}
-        />
       </div>
-      <Terminal />
+      <div className="flex flex-1 w-full h-full">
+        <ResizablePanelGroup direction="vertical" className="w-full h-full">
+          <ResizablePanel minSize={25} defaultSize={75} maxSize={100}>
+            <CodeEditor
+              code={code}
+              onChange={handleCodeChange}
+              language={getLanguage(selectedFilePath || null)}
+            />
+          </ResizablePanel>
+          <ResizableHandle
+            className="bg-transparent"
+            withHandle
+          ></ResizableHandle>
+          <ResizablePanel defaultSize={25} minSize={5}>
+            <Terminal />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
     </div>
   );
 }

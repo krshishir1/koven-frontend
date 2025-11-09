@@ -23,7 +23,7 @@ export default function Page() {
   useEffect(() => {
     // If auth is checked and user is NOT logged in, redirect to home
     if (isAuthChecked && !isAuthenticated) {
-      router.replace("/");
+      // router.replace("/");
     }
   }, [isAuthChecked, isAuthenticated, router]);
 

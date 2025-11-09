@@ -13,6 +13,7 @@ export default function PreviewPanel({ projectId }: PreviewPanelProps) {
   const [showCode, setShowCode] = useState(true);
   const project = useProjectStore((s) => s.projects.find((p) => p.id === projectId));
 
+
   return (
     <div className="flex flex-col flex-1 h-full bg-muted border-l border-border overflow-hidden">
       {/* <PreviewToolbar project={project} onToggleCode={() => setShowCode(!showCode)} /> */}
@@ -20,7 +21,7 @@ export default function PreviewPanel({ projectId }: PreviewPanelProps) {
       {/* iPhone Frame - takes remaining space */}
       <div className="flex-1 flex items-center justify-center bg-muted/30 overflow-auto">
         {showCode ? (
-          <div className="px-2 py-2 h-full w-full">
+          <div className="px-0 py-0 h-full w-full">
             <ProjectExplorer />
           </div>
         ) : (

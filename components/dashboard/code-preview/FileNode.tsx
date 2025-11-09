@@ -35,7 +35,7 @@ export default function FileNode({ node, depth = 0, onSelect, onAction }: Props)
           className="flex items-center gap-2 flex-1"
         >
           {isFolder ? (
-            <Folder size={14} className="text-blue-500" />
+            <Folder size={14} className="text-orange-500" />
           ) : (
             <File size={14} className="text-gray-600" />
           )}
