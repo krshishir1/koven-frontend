@@ -7,7 +7,7 @@ import { Plus, Settings, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProjectAvatar } from "@/components/ui/avatar-gen";
 import { useProjectStore } from "@/hooks/stores";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import {
   Files,
@@ -41,7 +41,7 @@ export default function AppSidebar({
   const setActiveTabGlobal = useProjectStore((s) => s.setActiveTab);
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
 
   // Ensure local state mirrors store for keyboard focus logic
   const activeId = activeProjectId ?? projects[0]?.id ?? null;
